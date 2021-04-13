@@ -1,7 +1,8 @@
 const inquirer = require("inquirer");
 const connection = require("../db/connection");
+
 module.exports = {
-    mainMenu: async function() {
+    mainMenu: async function () {
         const { modeChoice } = await inquirer.prompt({
             message: "what would you like to do",
             type: "list",
@@ -21,28 +22,28 @@ module.exports = {
 
         switch (modeChoice) {
             case "Add a Department":
-                console.log("hi");
+                this.addDepartment();
                 break;
             case "Add a Role":
-                console.log("hi");
+                this.addRole();
                 break;
             case "Add an Employee":
-                console.log("hi");
+                this.addEmpolyee();
                 break;
             case "View Roles":
-                console.log("hi");
+                this.viewRole();
                 break;
             case "View Employees":
-                console.log("hi");
+                this.viewEmpolyee;
                 break;
             case "View Departments":
-                console.log("hi");
+                this.viewDepartment();
                 break;
             case "Edit Employee Role":
-                console.log("hi");
+                this.editEmployee();
                 break;
             case "Exit":
-                console.log("hi");
+                this.exit();
                 break;
 
             default:
@@ -50,5 +51,52 @@ module.exports = {
                 process.exit();
                 break;
         }
+    },
+    // logic for adding elements
+    addDepartment: async function () {
+        const { name } = await inquirer.prompt({
+            type: "test",
+            name: "name",
+            message: "what is the name of this department",
+        });
+
+        await connection.query("insert into department SET ?", [{ name}]);
+        console.log("success");
+        this.mainMenu();
+    },
+
+    // adding role needs a department id
+    addRole: async function () {
+        const departments = await connection.query("SELECT * FROM department");
+
+        const { title, salary, department_id } = await inquirer.prompt([
+            { type: "text", name: "title", message: "what is the title" },
+            { type: "number", name: "salary", message: "what is the salary" },
+            { 
+                type: "list", 
+                name: "department_id", 
+                message: "what department does this role belong to?",
+                choices: departments.map(department => {
+                    return { name: department.name, value: department.id };
+                }),
+            },
+        ]);
+
+        console.log("new employee data", title, salary, department_id);
+    },
+
+
+    // logic for viewing elements
+    viewDepartment: async function () {
+        const departments = await connection.query("SELECT * FROM department");
+        const departmentData = departments.map((department) => {
+            return { id: department.id, name: department.name };
+        });
+        console.table(
+            departments.map((department) => {
+                return { id: department.id, name: department.name };
+            })
+        );
+        this.mainMenu();
     },
 };
