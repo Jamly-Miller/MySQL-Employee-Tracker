@@ -270,10 +270,10 @@ module.exports = {
             }),
         });
 
-        console.log(newRoleId);
-
-
-        console.log(chosenEmployee);
+        const query = await connection.query(
+            "UPDATE employee SET role_id=? WHERE id=?",
+            [newRoleId, chosenEmployee.id]
+        );
 
         this.mainMenu();
 
